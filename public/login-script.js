@@ -3,7 +3,7 @@
 // ========================================================================
 
 // !!! QUAN TRỌNG: Dán URL Web App của bạn đã triển khai từ Google Apps Script vào đây
-const API_URL = 'https://script.google.com/macros/s/AKfycbwceH1HPGGp7ZBrTY1OdGRuNbf6bECF_4wJJ1zvTEo7LDDgQYttW0LRObRzAD17Aa_g6w/exec';
+const API_URL = 'URL_WEB_APP_CUA_BAN_SE_DAN_VAO_DAY';
 
 document.addEventListener('DOMContentLoaded', () => {
     // Nếu đã có session, không cần ở lại trang login, chuyển thẳng vào app
@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     showTab('login'); // Hiển thị tab đăng nhập mặc định
 });
-
 
 // ========================================================================
 // === CÁC HÀM XỬ LÝ SỰ KIỆN ===============================================
@@ -97,11 +96,9 @@ async function handleSignup(event) {
     }
 }
 
-
 // ========================================================================
 // === CÁC HÀM TIỆN ÍCH CHO GIAO DIỆN (Lấy từ script gốc của login.html) ====
 // ========================================================================
-
 function showTab(tabName) {
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
