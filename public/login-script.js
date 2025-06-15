@@ -41,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     showTab('login');
 });
-
 // ========================================================================
 // === 2. CÁC HÀM XỬ LÝ SỰ KIỆN - ĐÃ SỬA LỖI ==============================
 // ========================================================================
@@ -72,7 +71,6 @@ async function handleLogin(event) {
         showPopup('Lỗi hệ thống', 'Không thể kết nối đến máy chủ. ' + error.message, 'error');
     }
 }
-
 async function handleSignup(event) {
     event.preventDefault();
     const password = document.getElementById('signupPassword').value;
@@ -103,7 +101,6 @@ async function handleSignup(event) {
         showPopup('Lỗi hệ thống', 'Không thể kết nối đến máy chủ. ' + error.message, 'error');
     }
 }
-
 // ========================================================================
 // === 3. CÁC HÀM TIỆN ÍCH ================================================
 // ========================================================================
