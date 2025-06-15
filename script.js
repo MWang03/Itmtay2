@@ -2,7 +2,7 @@
 // === 1. CẤU HÌNH VÀ KHAI BÁO BIẾN ============================
 // ============================================================
 // PHẦN THÊM MỚI: Thay thế URL này bằng URL Web App của bạn sau khi triển khai
-const API_URL = 'URL_WEB_APP_CUA_BAN_SE_DAN_VAO_DAY';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwCpOj3lKBBMUqDSeKoimocQwwA4VjaUWag4p-1hl5yLjNKAd5GXNGgAO2RZyTvdx9jUQ/exec';
 
 // Cấu hình menu (Nguồn: Sao chép từ thẻ <script> của file index.html gốc)
 const leftMenuData = [ /* ... Toàn bộ cấu hình menu của bạn ... */ ];
