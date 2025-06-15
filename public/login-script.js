@@ -46,10 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // === 2. CÁC HÀM XỬ LÝ SỰ KIỆN - ĐÃ SỬA LỖI ==============================
 // ========================================================================
 
-/**
- * SỬA LỖI 3: Cập nhật luồng xử lý của hàm handleLogin
- * Hiển thị popup trước, sau đó mới chuyển trang.
- */
+// SỬA LỖI: Cập nhật lại luồng xử lý của hàm handleLogin và handleSignup
 async function handleLogin(event) {
     event.preventDefault();
     showLoadingIndicator();
@@ -61,13 +58,13 @@ async function handleLogin(event) {
         hideLoadingIndicator();
         
         if (result.success && result.sessionId) {
-            // HIỂN THỊ POPUP TRƯỚC
+            // Hiển thị popup modal thành công ở giữa trang
             showPopup('Đăng nhập thành công!', result.message, 'success', () => {
-                // HÀNH ĐỘNG SAU KHI NGƯỜI DÙNG ĐÓNG POPUP
                 sessionStorage.setItem('appSessionId', result.sessionId);
-                window.location.href = 'index.html'; // CHUYỂN TRANG SAU
+                window.location.href = 'index.html';
             });
         } else {
+            // Hiển thị popup báo lỗi ở góc dưới bên phải
             showErrorAlert(result.message || 'Đăng nhập thất bại.');
         }
     } catch (error) {
@@ -76,10 +73,6 @@ async function handleLogin(event) {
     }
 }
 
-/**
- * SỬA LỖI 3: Cập nhật luồng xử lý của hàm handleSignup
- * Hiển thị popup trước, sau đó mới chuyển tab.
- */
 async function handleSignup(event) {
     event.preventDefault();
     const password = document.getElementById('signupPassword').value;
@@ -98,11 +91,9 @@ async function handleSignup(event) {
         const result = await postAPI('register', { username, password, fullName, phone });
         hideLoadingIndicator();
         if (result.success) {
-             // HIỂN THỊ POPUP TRƯỚC
             showPopup('Đăng ký thành công!', result.message, 'success', () => {
-                // HÀNH ĐỘNG SAU KHI NGƯỜI DÙNG ĐÓNG POPUP
                 document.getElementById('signupForm').reset();
-                showTab('login'); // Tự động chuyển qua tab đăng nhập
+                showTab('login');
             });
         } else {
             showPopup('Đăng ký thất bại', result.message, 'error');
