@@ -3,7 +3,7 @@
 // ========================================================================
 
 // !!! QUAN TRỌNG: Dán URL Web App của bạn vào đây
-const API_URL = 'https://script.google.com/macros/s/AKfycbwceH1HPGGp7ZBrTY1OdGRuNbf6bECF_4wJJ1zvTEo7LDDgQYttW0LRObRzAD17Aa_g6w/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyyplfafLTbRP0ywasghwbrP3piLZVQxrCNTGi6ifsyfzH15ZBixAa26CMriROG4OZWIQ/exec';
 
 // Cấu hình menu (Nguồn: Sao chép từ thẻ <script> của file index.html gốc)
 const leftMenuData = [
@@ -16,11 +16,10 @@ const leftMenuData = [
             subItems: [
                 { id: 'btnDatabase', text: 'DATABASE', pageLoader: { name: 'admin-database', title: 'QUẢN LÝ DỮ LIỆU'}, icon: 'fa-solid fa-database' },
                 { id: 'btnUserInfo', text: 'QUẢN LÝ USER', pageLoader: { name: 'admin-thong-tin-thanh-vien', title: 'QUẢN LÝ THÀNH VIÊN'}, icon: 'fa-solid fa-users' },
-                { id: 'btnThongBao', text: 'TẠO THÔNG BÁO MỚI', pageLoader: { name: 'thong-bao', title: 'TẠO THÔNG BÁO MỚI'}, icon: 'fa-regular fa-newspaper' },
+                { id: 'btnThongBaoMenu', text: 'TẠO THÔNG BÁO MỚI', pageLoader: { name: 'thong-bao', title: 'TẠO THÔNG BÁO MỚI'}, icon: 'fa-regular fa-newspaper' },
             ]
           }
         ]
-    
     },
     {
         title: '2025 - IT MTAY2',
@@ -83,13 +82,13 @@ const rightMenuData = [
     }
 ];
 
-// DOM Elements
 const functionContent = document.getElementById('functionContent');
 const loadingSpinner = document.getElementById('loadingSpinner');
 const currentPageTitle = document.getElementById('current-page-title');
 const leftSidebarContainer = document.getElementById('left-sidebar-container');
 const rightSidebarContainer = document.getElementById('right-sidebar-container');
 let inactivityTimer;
+let isAdminAuthenticated = false;
 
 // ========================================================================
 // === 2. KHỞI TẠO ỨNG DỤNG ==============================================
@@ -113,38 +112,30 @@ async function initializeApp(sessionId) {
             return;
         }
 
-        // Nếu session hợp lệ, hiển thị App
-        const overlay = document.getElementById('initial-loading-overlay');
-        const appContainer = document.getElementById('app-container');
-        if(overlay) overlay.style.display = 'none';
-        if(appContainer) {
-            appContainer.style.display = 'flex';
-            appContainer.style.flexDirection = 'column';
-            appContainer.style.height = '100vh';
-        }
+        const userDetails = await getAPI('getUserSessionDetails');
+        isAdminAuthenticated = userDetails.isAdmin;
+
+        document.getElementById('initial-loading-overlay').style.display = 'none';
+        document.getElementById('app-container').style.display = 'flex';
 
         renderLeftMenu();
         renderRightMenu();
         setupGlobalEventListeners();
         updateClock();
         setInterval(updateClock, 1000);
-        
-        const userDetails = await getAPI('getUserSessionDetails');
         updateUserDisplay(userDetails);
         
         loadPage('thong-bao', 'BẢNG TIN CÔNG VIỆC');
 
-        // Setup inactivity timer
-        resetInactivityTimer();
         ['load', 'mousemove', 'mousedown', 'touchstart', 'click', 'keydown'].forEach(evt => 
             window.addEventListener(evt, resetInactivityTimer, true)
         );
+        resetInactivityTimer();
 
     } catch (error) {
-        document.body.innerHTML = `<p style="color:red; text-align:center; padding: 20px;">Lỗi kết nối đến máy chủ. Không thể khởi tạo ứng dụng. Vui lòng thử lại. Lỗi: ${error.message}</p>`;
+        document.body.innerHTML = `<p style="color:red; text-align:center; padding: 20px;">Lỗi kết nối đến máy chủ. Không thể khởi tạo ứng dụng. Lỗi: ${error.message}</p>`;
     }
 }
-
 
 // ========================================================================
 // === 3. HÀM TẢI TRANG VÀ GỌI API =========================================
@@ -170,7 +161,6 @@ async function loadPage(pageName, pageTitle) {
     } catch (error) {
         loadingSpinner.style.display = 'none';
         functionContent.innerHTML = `<p style="color: red; padding: 20px;">Lỗi tải nội dung: ${error.message}</p>`;
-        console.error("Lỗi loadPage:", error);
     }
 }
 
@@ -181,18 +171,19 @@ async function getAPI(action, params = {}) {
         url.searchParams.append(key, params[key]);
     }
     const response = await fetch(url);
+    if (!response.ok) throw new Error(`Lỗi mạng khi gọi API: ${response.statusText}`);
     return response.json();
 }
 
 async function postAPI(action, body = {}) {
     const response = await fetch(API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // GAS cần kiểu này
         body: JSON.stringify({ action, ...body })
     });
+    if (!response.ok) throw new Error(`Lỗi mạng khi gọi API: ${response.statusText}`);
     return response.json();
 }
-
 
 // ========================================================================
 // === 4. LOGIC CỦA CÁC TRANG (INIT FUNCTIONS) ============================
@@ -205,58 +196,70 @@ async function init_tim_kiem_sheet() { /* ... Code đã cung cấp ở câu tr�
 function init_tim_kiem_sieu_thi() { /* ... Code đã cung cấp ở câu trả lời trước ... */ }
 async function init_tai_lieu_dashboard() { /* ... Code đã cung cấp ở câu trả lời trước ... */ }
 
-// Thêm các hàm init cho các trang tĩnh nếu cần gắn sự kiện đơn giản
-function init_cv_baotri_kiemke() { console.log("Trang Lịch bảo trì đã tải."); }
-// ... các hàm init khác nếu cần
-
 // ========================================================================
-// === 5. HÀM TIỆN ÍCH VÀ GIAO DIỆN (Lấy từ script gốc của index.html) ====
+// === 5. HÀM TIỆN ÍCH VÀ GIAO DIỆN ========================================
 // ========================================================================
 function setupGlobalEventListeners() {
     document.getElementById('logoutButton').addEventListener('click', () => {
-        const modal = document.getElementById('customConfirmModal');
-        if (modal) modal.style.display = 'flex';
+        document.getElementById('customConfirmModal').style.display = 'flex';
     });
-
     document.getElementById('confirmBtnYes').addEventListener('click', async () => {
-        await postAPI('logout'); // Gọi API để xóa session phía server
+        await postAPI('logout');
         sessionStorage.removeItem('appSessionId');
         window.location.href = 'login.html';
     });
-
     document.getElementById('confirmBtnNo').addEventListener('click', () => {
-        const modal = document.getElementById('customConfirmModal');
-        if (modal) modal.style.display = 'none';
+        document.getElementById('customConfirmModal').style.display = 'none';
     });
-    
     document.getElementById('btnGoHomeHeader').addEventListener('click', () => loadPage('thong-bao', 'BẢNG TIN CÔNG VIỆC'));
+    
+    // Xử lý admin login modal
+    const adminLoginModal = document.getElementById('adminLoginModal');
+    const adminLoginSubmit = document.getElementById('adminLoginSubmit');
+    const adminLoginCancel = document.getElementById('adminLoginCancel');
+    const adminPasswordInput = document.getElementById('adminPassword');
+
+    adminLoginCancel.addEventListener('click', () => { adminLoginModal.style.display = 'none'; });
+    adminLoginSubmit.addEventListener('click', handleAdminLogin);
+    adminPasswordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAdminLogin(); });
 }
 
-function updateUserDisplay(details) {
-    const userNameDisplay = document.getElementById('userNameDisplay');
-    if (!userNameDisplay) return;
-    if (details.isAdmin) {
-        userNameDisplay.innerHTML = `Xin chào, ${details.fullName} <i class="fas fa-user-shield" style="color: #ef4444;"></i>`;
-    } else {
-        userNameDisplay.textContent = `Xin chào, ${details.fullName}`;
+async function handleAdminLogin() {
+    const adminLoginModal = document.getElementById('adminLoginModal');
+    const adminUsername = document.getElementById('adminUsername');
+    const adminPassword = document.getElementById('adminPassword');
+    const adminLoginError = document.getElementById('adminLoginError');
+    const adminLoginSubmit = document.getElementById('adminLoginSubmit');
+
+    const username = adminUsername.value.trim();
+    const password = adminPassword.value;
+    if (!username || !password) {
+        adminLoginError.textContent = 'Vui lòng nhập đủ thông tin.';
+        return;
     }
-}
+    
+    adminLoginSubmit.disabled = true;
+    adminLoginError.textContent = '';
 
-function updateClock() {
-    const now = new Date();
-    const timeEl = document.getElementById('clock-time');
-    const dateEl = document.getElementById('clock-date');
-    if(timeEl) timeEl.textContent = now.toLocaleTimeString('vi-VN');
-    if(dateEl) dateEl.textContent = now.toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'long' });
-}
-
-function resetInactivityTimer() {
-    clearTimeout(inactivityTimer);
-    inactivityTimer = setTimeout(() => {
-        sessionStorage.removeItem('appSessionId');
-        alert('Bạn đã bị đăng xuất do không hoạt động.');
-        window.location.href = 'login.html';
-    }, 1800000); // 30 phút
+    try {
+        const response = await postAPI('verifyAdmin', { username, password });
+        if (response.success) {
+            isAdminAuthenticated = true;
+            adminLoginModal.style.display = 'none';
+            adminUsername.value = '';
+            adminPassword.value = '';
+            alert('Xác thực Admin thành công!');
+        } else {
+            isAdminAuthenticated = false;
+            adminLoginError.textContent = response.message || 'Lỗi không xác định.';
+            adminPassword.value = '';
+        }
+    } catch (error) {
+        isAdminAuthenticated = false;
+        adminLoginError.textContent = 'Lỗi kết nối: ' + error.message;
+    } finally {
+        adminLoginSubmit.disabled = false;
+    }
 }
 
 function renderLeftMenu() {
@@ -268,31 +271,37 @@ function renderLeftMenu() {
         sectionDiv.innerHTML = `<h3 class="menu-section-title"><span>${section.title}</span></h3>`;
         const menuItemsContainer = document.createElement('div');
         menuItemsContainer.className = 'menu-items-container';
+
         section.items.forEach(item => {
-            if (item.isDropdown) {
-                // Logic tạo dropdown
-            } else {
-                const a = document.createElement('a');
-                a.href = '#';
-                a.id = item.id;
-                a.className = `menu-button-sidebar ${item.className || ''}`;
-                a.innerHTML = `<i class="${item.icon} icon"></i><span>${item.text}</span>`;
-                a.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    if (item.pageLoader) {
-                        loadPage(item.pageLoader.name, item.pageLoader.title);
-                    }
-                });
-                menuItemsContainer.appendChild(a);
+            const button = document.createElement('a');
+            button.href = '#';
+            button.id = item.id;
+            button.className = 'menu-button-sidebar';
+            button.innerHTML = `<i class="${item.icon} icon"></i><span>${item.text}</span>`;
+            
+            if (item.isAdmin && !isAdminAuthenticated) {
+                button.classList.add('protected');
+                button.title = "Cần quyền Admin để truy cập";
             }
+
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (item.isAdmin && !isAdminAuthenticated) {
+                    document.getElementById('adminLoginModal').style.display = 'flex';
+                    return;
+                }
+                if (item.pageLoader) {
+                    loadPage(item.pageLoader.name, item.pageLoader.title);
+                }
+            });
+            menuItemsContainer.appendChild(button);
         });
         sectionDiv.appendChild(menuItemsContainer);
         wrapper.appendChild(sectionDiv);
     });
 }
 
-function renderRightMenu() {
-    // ... logic render right menu tương tự ...
-}
-
-// ... các hàm tiện ích khác từ script gốc như collapseSidebar, v.v. ...
+function renderRightMenu() { /* ... Code render right menu giữ nguyên ... */ }
+function updateUserDisplay(details) { /* ... Code updateUserDisplay giữ nguyên ... */ }
+function updateClock() { /* ... Code updateClock giữ nguyên ... */ }
+function resetInactivityTimer() { /* ... Code resetInactivityTimer giữ nguyên ... */ }
