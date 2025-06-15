@@ -3,7 +3,7 @@
 // ========================================================================
 
 // !!! QUAN TRỌNG: Dán URL Web App của bạn đã triển khai từ Google Apps Script vào đây
-const API_URL = 'URL_WEB_APP_CUA_BAN_SE_DAN_VAO_DAY';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyyplfafLTbRP0ywasghwbrP3piLZVQxrCNTGi6ifsyfzH15ZBixAa26CMriROG4OZWIQ/exec';
 
 document.addEventListener('DOMContentLoaded', () => {
     // Nếu đã có session, không cần ở lại trang login, chuyển thẳng vào app
