@@ -3,7 +3,7 @@
 // ========================================================================
 
 // !!! QUAN TRỌNG: Dán URL Web App của bạn đã triển khai từ Google Apps Script vào đây
-const API_URL = 'URL_WEB_APP_CUA_BAN_SE_DAN_VAO_DAY';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxImzFzygkVQYNDFD6auVxU6QTmQh26DA2cg0GcgVKGcg7DKkR61U0euoFKvfhOiDY_Bw/exec';
 
 // Cấu hình menu (Nguồn: Sao chép từ thẻ <script> của file index.html gốc)
 const leftMenuData = [
