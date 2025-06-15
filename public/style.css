@@ -34,6 +34,53 @@
 }
 body { margin: 0; padding: 0; font-family: var(--font-family); background-color: var(--bg-main); color: var(--text-primary); display: flex; flex-direction: column; height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
+/* ======================================================================== */
+/* === PHẦN 1: BỐ CỤC LAYOUT CHÍNH - SỬA LỖI HIỂN THỊ ====================== */
+/* ======================================================================== */
+
+/* Đảm bảo body và app-container là một cột flex chiếm toàn bộ chiều cao */
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden; /* Ngăn cuộn trang trên body */
+    margin: 0;
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#app-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Cho phép container app lấp đầy body */
+    overflow: hidden;
+}
+
+/* Header sẽ không bị co lại */
+#main-header {
+    flex-shrink: 0;
+}
+
+/* Đây là khu vực chính, thiết lập nó thành một hàng flex */
+#main-content-area {
+    display: flex;      /* QUAN TRỌNG: Biến khu vực này thành hàng ngang */
+    flex-direction: row;/* Sidebar và content sẽ nằm cạnh nhau */
+    flex-grow: 1;       /* Cho phép nó lấp đầy không gian còn lại */
+    overflow: hidden;   /* Ngăn nó tạo thanh cuộn ngoài ý muốn */
+}
+
+/* Các sidebar không bị co lại và có thể tự cuộn bên trong */
+#left-sidebar-container,
+#right-sidebar-container {
+    flex-shrink: 0;
+    overflow-y: auto; /* Cho phép cuộn khi nội dung dài */
+}
+
+/* Vùng nội dung chính sẽ co giãn để lấp đầy không gian */
+#functionContent {
+    flex-grow: 1;
+    overflow-y: auto; /* Cho phép cuộn khi nội dung dài */
+    padding: 20px;    /* Giữ lại padding cho đẹp */
+}
 /* Header */
 #main-header { background-color: #0056b3; color: white; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); border-bottom: 1px solid var(--border-color); flex-shrink: 0; z-index: 10; }
 #header-left { font-size: 1rem; font-weight: 500; }
