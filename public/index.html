@@ -1,39 +1,72 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-    <base href="/">
+    <base target="_top">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Công việc IT</title>
+    <title>Quản lý Công việc</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="initial-loading-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display:flex; justify-content:center; align-items:center;">
-        <div class="spinner" style="width: 50px; height: 50px;"></div>
+        <div class="spinner"></div>
     </div>
     
-    <div id="app-container" style="display:none; flex-direction: column; height: 100vh;">
+    <div id="app-container" style="display:none;">
         <div id="main-header">
-            <div id="header-left"><span id="btnGoHomeHeader"><i class="fas fa-home header-icon"></i>Trang Chủ</span></div>
-            <div id="current-page-title">Trang Chủ</div>
+            <div id="header-left">
+                <span id="btnGoHomeHeader"><i class="fas fa-home header-icon"></i>Trang Chủ</span>
+            </div>
+            <div id="current-page-title"></div>
             <div id="header-right">
-                <div id="user-controls" class="header-item"><span id="userNameDisplay"></span><button id="logoutButton" class="header-logout-btn">Đăng xuất</button></div>
-                <div id="live-clock" class="header-item"><span id="clock-time"></span><span id="clock-date"></span></div>
+                <div id="user-controls" class="header-item">
+                    <span id="userNameDisplay"></span>
+                    <button id="logoutButton" class="header-logout-btn">Đăng xuất</button>
+                </div>
+                <div id="live-clock" class="header-item">
+                    <span id="clock-time"></span>
+                    <span id="clock-date"></span>
+                </div>
             </div>
         </div>
-        <div id="main-content-area" style="display: flex; flex-grow: 1; overflow: hidden;">
-            <div id="left-sidebar-container" class="collapsed"><div class="sidebar-content-wrapper"></div></div>
-            <main id="functionContent"><div id="loadingSpinner"></div></main>
-            <div id="right-sidebar-container" class="collapsed"><div class="sidebar-content-wrapper"></div></div>
+
+        <div id="main-content-area">
+            <div id="left-sidebar-container" class="collapsed">
+                <div class="sidebar-content-wrapper"></div>
+            </div>
+            <main id="functionContent">
+                <div id="loadingSpinner"></div>
+            </main>
+            <div id="right-sidebar-container" class="collapsed">
+                <div class="sidebar-content-wrapper"></div>
+            </div>
         </div>
-        <div id="customConfirmModal" class="modal-overlay" style="display:none;">
+
+        <div id="customConfirmModal" class="modal-overlay">
             <div class="modal-content">
                 <p id="modalMessage">Bạn có chắc chắn muốn đăng xuất?</p>
-                <div class="modal-buttons"><button id="confirmBtnYes">OK</button><button id="confirmBtnNo">Cancel</button></div>
+                <div class="modal-buttons">
+                    <button id="confirmBtnYes">OK</button>
+                    <button id="confirmBtnNo">Cancel</button>
+                </div>
+            </div>
+        </div>
+        <div id="adminLoginModal" class="modal-overlay">
+             <div class="modal-content">
+                <h3 style="margin-top: 0; color: var(--primary-color);">Bạn không có quyền truy cập.</h3>
+                <p id="adminLoginError" style="color: var(--danger-color); margin-bottom: 10px; height: 1em;"></p>
+                <input type="text" id="adminUsername" placeholder="Tên đăng nhập" autocomplete="off" style="width: 90%; padding: 10px; margin-bottom: 10px; border: 1px solid var(--border-color); border-radius: var(--border-radius-md);">
+                <input type="password" id="adminPassword" placeholder="Mật khẩu" style="width: 90%; padding: 10px; margin-bottom: 20px; border: 1px solid var(--border-color); border-radius: var(--border-radius-md);">
+                <div class="modal-buttons">
+                    <button id="adminLoginSubmit">Đăng nhập</button>
+                    <button id="adminLoginCancel">Hủy</button>
+                </div>
             </div>
         </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
