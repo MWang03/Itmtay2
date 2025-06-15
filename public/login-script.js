@@ -1,9 +1,9 @@
 // ========================================================================
-// === CẤU HÌNH VÀ KHỞI TẠO ===============================================
+// === 1. CẤU HÌNH VÀ KHỞI TẠO ===============================================
 // ========================================================================
 
 // !!! QUAN TRỌNG: Dán URL Web App của bạn đã triển khai từ Google Apps Script vào đây
-const API_URL = 'https://script.google.com/macros/s/AKfycbxM3W4vQippKIieLqaTcGgrKzQk3ieXP3A0GQghwOoA4WbhhX9V52iG4wuFCOuocEDQlQ/exec';
+const API_URL = 'URL_WEB_APP_CUA_BAN_SE_DAN_VAO_DAY';
 
 document.addEventListener('DOMContentLoaded', () => {
     // Nếu đã có session, không cần ở lại trang login, chuyển thẳng vào app
@@ -18,17 +18,38 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('login-tab-button').addEventListener('click', () => showTab('login'));
     document.getElementById('signup-tab-button').addEventListener('click', () => showTab('signup'));
     
-    // Gắn sự kiện cho các nút Xóa
     document.querySelector('#loginForm .btn-clear').addEventListener('click', () => clearForm('loginForm'));
     document.querySelector('#signupForm .btn-clear').addEventListener('click', () => clearForm('signupForm'));
 
-    showTab('login'); // Hiển thị tab đăng nhập mặc định
+    // Logic cho Widget Hỗ trợ
+    const supportWidget = document.getElementById('supportWidget');
+    if (supportWidget) {
+        const supportBubble = document.getElementById('supportBubble');
+        const closeSupportBox = document.getElementById('closeSupportBox');
+        supportBubble.addEventListener('click', (event) => {
+            event.stopPropagation(); 
+            supportWidget.classList.toggle('open');
+        });
+        closeSupportBox.addEventListener('click', () => {
+            supportWidget.classList.remove('open');
+        });
+        window.addEventListener('click', () => {
+            if (supportWidget.classList.contains('open')) {
+                supportWidget.classList.remove('open');
+            }
+        });
+    }
+    showTab('login');
 });
 
 // ========================================================================
-// === CÁC HÀM XỬ LÝ SỰ KIỆN ===============================================
+// === 2. CÁC HÀM XỬ LÝ SỰ KIỆN - ĐÃ SỬA LỖI ==============================
 // ========================================================================
 
+/**
+ * SỬA LỖI 3: Cập nhật luồng xử lý của hàm handleLogin
+ * Hiển thị popup trước, sau đó mới chuyển trang.
+ */
 async function handleLogin(event) {
     event.preventDefault();
     showLoadingIndicator();
@@ -36,19 +57,16 @@ async function handleLogin(event) {
     const password = document.getElementById('loginPassword').value;
 
     try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action: 'login', username, password })
-        });
-        const result = await response.json();
-        
+        const result = await postAPI('login', { username, password });
         hideLoadingIndicator();
+        
         if (result.success && result.sessionId) {
-            // Lưu session ID vào sessionStorage để các trang khác có thể dùng
-            sessionStorage.setItem('appSessionId', result.sessionId);
-            // Chuyển hướng đến trang chính
-            window.location.href = 'index.html';
+            // HIỂN THỊ POPUP TRƯỚC
+            showPopup('Đăng nhập thành công!', result.message, 'success', () => {
+                // HÀNH ĐỘNG SAU KHI NGƯỜI DÙNG ĐÓNG POPUP
+                sessionStorage.setItem('appSessionId', result.sessionId);
+                window.location.href = 'index.html'; // CHUYỂN TRANG SAU
+            });
         } else {
             showErrorAlert(result.message || 'Đăng nhập thất bại.');
         }
@@ -58,11 +76,14 @@ async function handleLogin(event) {
     }
 }
 
+/**
+ * SỬA LỖI 3: Cập nhật luồng xử lý của hàm handleSignup
+ * Hiển thị popup trước, sau đó mới chuyển tab.
+ */
 async function handleSignup(event) {
     event.preventDefault();
     const password = document.getElementById('signupPassword').value;
     const confirmPassword = document.getElementById('signupConfirmPassword').value;
-
     if (password !== confirmPassword) {
         showErrorAlert('Mật khẩu xác nhận không khớp!');
         return;
@@ -74,18 +95,14 @@ async function handleSignup(event) {
     const phone = document.getElementById('signupPhone').value;
 
     try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action: 'register', username, password, fullName, phone })
-        });
-        const result = await response.json();
-        
+        const result = await postAPI('register', { username, password, fullName, phone });
         hideLoadingIndicator();
         if (result.success) {
-            document.getElementById('signupForm').reset();
+             // HIỂN THỊ POPUP TRƯỚC
             showPopup('Đăng ký thành công!', result.message, 'success', () => {
-                showTab('login');
+                // HÀNH ĐỘNG SAU KHI NGƯỜI DÙNG ĐÓNG POPUP
+                document.getElementById('signupForm').reset();
+                showTab('login'); // Tự động chuyển qua tab đăng nhập
             });
         } else {
             showPopup('Đăng ký thất bại', result.message, 'error');
@@ -97,8 +114,19 @@ async function handleSignup(event) {
 }
 
 // ========================================================================
-// === CÁC HÀM TIỆN ÍCH CHO GIAO DIỆN (Lấy từ script gốc của login.html) ====
+// === 3. CÁC HÀM TIỆN ÍCH ================================================
 // ========================================================================
+
+async function postAPI(action, body = {}) {
+    const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action, ...body })
+    });
+    if (!response.ok) throw new Error(`Lỗi mạng khi gọi API: ${response.statusText}`);
+    return response.json();
+}
+
 function showTab(tabName) {
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
@@ -145,26 +173,29 @@ function showPopup(titleText, messageText, type, onCloseCallback = null) {
 
     if (!overlay || !container || !icon || !title || !msg || !closeBtn) return;
     
+    const supportWidget = document.getElementById('supportWidget');
+    if(supportWidget) supportWidget.style.zIndex = '1501';
+
     title.textContent = titleText;
     msg.textContent = messageText;
     container.className = `popup-container ${type}`;
     icon.innerHTML = (type === 'success') ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>';
     overlay.classList.add('show');
 
-    const closeHandler = () => {
+    function closeHandler() {
         overlay.classList.remove('show');
+        if(supportWidget) supportWidget.style.zIndex = '100';
         if (typeof onCloseCallback === 'function') {
             onCloseCallback();
         }
         closeBtn.removeEventListener('click', closeHandler);
         overlay.removeEventListener('click', overlayHandler);
-    };
-
-    const overlayHandler = (event) => {
+    }
+    function overlayHandler(event) {
         if (event.target === overlay) {
             closeHandler();
         }
-    };
+    }
     
     closeBtn.addEventListener('click', closeHandler);
     overlay.addEventListener('click', overlayHandler);
