@@ -396,3 +396,199 @@ async function init_tim_kiem_sheet() {
         resultContainer.innerHTML = `<p style="color: red;">Lỗi tải danh sách sheet: ${error.message}</p>`;
     }
 }
+function init_tim_kiem_sieu_thi() {
+    // Nguồn: Chuyển đổi từ thẻ <script> của file tim-kiem-sieu-thi.html
+
+    // Bước 1: Lấy các phần tử DOM
+    const maSTInput = document.getElementById('maSTInput');
+    const searchButton = document.getElementById('searchButton');
+    const clearButton = document.getElementById('clearButton');
+    const buttonText = document.getElementById('buttonText');
+    const resultOutput = document.getElementById('resultOutput');
+    const errorMessage = document.getElementById('errorMessage');
+    const loadingMessage = document.getElementById('loadingMessage');
+    const suggestionsBox = document.getElementById('suggestions-box');
+    
+    let isSearching = false; // Biến kiểm soát trạng thái tìm kiếm
+
+    // Bước 2: Chuyển các hàm trợ giúp vào bên trong
+    function resetButtonState() {
+        isSearching = false; 
+        searchButton.disabled = false;
+        buttonText.textContent = 'Tìm Kiếm';
+        loadingMessage.style.display = 'none';
+    }
+
+    function clearSearch() {
+        maSTInput.value = '';
+        resultOutput.style.display = 'none';
+        errorMessage.textContent = '';
+        maSTInput.classList.remove('error');
+        suggestionsBox.style.display = 'none';
+        resetButtonState();
+    }
+
+    function formatResult(data) {
+        // Hàm này giữ nguyên logic từ script gốc
+        const createRow = (icon, label, value, delay) => `
+            <div class="result-row" style="animation-delay: ${delay}s;">
+                <i class="fas ${icon} result-icon"></i>
+                <span class="result-label">${label}</span>
+                <span class="result-value">${value}</span>
+            </div>`;
+        
+        return `
+        <div class="result-card">
+            <div class="result-main-title">KẾT QUẢ TÌM KIẾM: ${data.maCN}</div>
+            <div class="result-section">
+                <div class="result-section-title"><i class="fas fa-info-circle"></i> THÔNG TIN SIÊU THỊ</div>
+                ${createRow('fa-barcode', 'Mã CN:', `<strong>${data.maCN}</strong>`, 0.1)}
+                ${createRow('fa-store', 'Tên ST:', `<strong>${data.tenST}</strong>`, 0.2)}
+                ${createRow('fa-calendar-alt', 'Khai Trương:', data.khaiTruong, 0.3)}
+                ${createRow('fa-map-marker-alt', 'Maps:', `<a href="${data.maps}" target="_blank">Xem trên bản đồ</a>`, 0.4)}
+                ${createRow('fa-user-cog', 'IT KV:', data.itKV, 0.5)}
+                ${createRow('fa-user-shield', 'Admin:', data.admin, 0.6)}
+            </div>
+            <div class="result-section">
+                <div class="result-section-title"><i class="fas fa-tools"></i> BẢO TRÌ - KIỂM KÊ</div>
+                ${createRow('fa-calendar-check', 'Ngày BT-KK:', data.ngayBTKK, 0.7)}
+                ${createRow('fa-file-alt', 'BC Bảo Trì:', data.bcBT, 0.8)}
+                ${createRow('fa-clipboard-check', 'BC Kiểm Kê:', data.bcKK, 0.9)}
+            </div>
+        </div>`;
+    }
+
+    // Bước 3: Viết lại các hàm xử lý sự kiện với getAPI
+    async function handleSuggestionInput() {
+        if (isSearching) return;
+        const inputText = maSTInput.value;
+        if (inputText.length < 2) {
+            suggestionsBox.style.display = 'none';
+            return;
+        }
+        
+        // THAY THẾ: Gọi API để lấy gợi ý
+        const suggestions = await getAPI('getStoreSuggestions', { partialCode: inputText });
+        
+        if (suggestions && suggestions.length > 0) {
+            suggestionsBox.innerHTML = '';
+            suggestions.forEach(suggestion => {
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                item.innerHTML = `<span class="code">${suggestion.code}</span><span class="name">${suggestion.name}</span>`;
+                item.onclick = () => {
+                    maSTInput.value = suggestion.code;
+                    suggestionsBox.style.display = 'none';
+                    searchStore();
+                };
+                suggestionsBox.appendChild(item);
+            });
+            suggestionsBox.style.display = 'block';
+        } else {
+            suggestionsBox.style.display = 'none';
+        }
+    }
+    
+    async function searchStore() {
+        isSearching = true; 
+        const maST = maSTInput.value;
+        
+        // ... (phần reset giao diện và kiểm tra lỗi giữ nguyên) ...
+        
+        // THAY THẾ: Gọi API để tìm kiếm
+        try {
+            const response = await getAPI('searchStore', { maST: maST });
+            resetButtonState();
+            if (response && response.error) {
+                errorMessage.textContent = 'Lỗi: ' + response.message;
+            } else if (response) {
+                resultOutput.innerHTML = formatResult(response);
+                resultOutput.style.display = 'block';
+            } else {
+                errorMessage.textContent = 'Không tìm thấy thông tin cho Mã Siêu Thị: "' + maST + '".';
+            }
+        } catch (error) {
+            resetButtonState();
+            errorMessage.textContent = 'Lỗi kết nối máy chủ: ' + error.message;
+        }
+    }
+
+    // Bước 4: Gắn các event listener
+    maSTInput.addEventListener('input', handleSuggestionInput);
+    maSTInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            searchStore();
+        }
+    });
+    document.addEventListener('click', (event) => {
+        if (!maSTInput.contains(event.target)) {
+            suggestionsBox.style.display = 'none';
+        }
+    });
+    searchButton.addEventListener('click', searchStore);
+    clearButton.addEventListener('click', clearSearch);
+}
+async function init_tai_lieu_dashboard() {
+    // Nguồn: Logic được viết lại dựa trên hàm getDashboardButtons trong Code.gs
+    // và giao diện trong tai-lieu-dashboard.html
+    const container = document.querySelector('.dashboard-container');
+    if (!container) return;
+    
+    container.innerHTML = '<div class="spinner"></div>'; // Hiển thị loading
+
+    // THAY THẾ: Gọi API để lấy danh sách các nút
+    try {
+        const buttons = await getAPI('getDashboardButtons');
+        container.innerHTML = ''; // Xóa spinner
+
+        // Render các nút tĩnh trước
+        container.insertAdjacentHTML('beforeend', `
+            <a href="https://newticket.tgdd.vn/ticket" target="_blank" class="card-link">
+                <div class="dashboard-card">
+                    <img src="https://i.imgur.com/VytCI2i.png" alt="New Ticket" class="card-image">
+                    <div class="card-content">
+                        <i class="fas fa-ticket-alt card-icon" style="color: #22c55e;"></i>
+                        <div class="card-text"><h3>New Ticket</h3><p>Mở trang tạo ticket mới</p></div>
+                    </div>
+                </div>
+            </a>
+            <a href="https://baocaonoibo.com" target="_blank" class="card-link">
+                <div class="dashboard-card">
+                    <img src="https://i.imgur.com/r6s2s1h.png" alt="Báo cáo" class="card-image">
+                    <div class="card-content">
+                        <i class="fas fa-chart-bar card-icon" style="color: #1d4ed8;"></i>
+                        <div class="card-text"><h3>Báo cáo nội bộ</h3><p>Xem các báo cáo kinh doanh</p></div>
+                    </div>
+                </div>
+            </a>
+        `);
+
+        // Render các nút động từ API
+        if (buttons && buttons.length > 0) {
+            buttons.forEach(button => {
+                const card = document.createElement('div');
+                card.className = 'dashboard-card card-link';
+                card.style.cursor = 'pointer';
+                card.innerHTML = `
+                    <div class="card-content">
+                        <i class="${button.icon} card-icon"></i>
+                        <div class="card-text">
+                            <h3>${button.title}</h3>
+                            <p>Mở bảng tính: ${button.sheetName || 'Chính'}</p>
+                        </div>
+                    </div>
+                `;
+                // Gắn sự kiện để mở sheet trong tab mới
+                card.addEventListener('click', () => {
+                    const url = `https://docs.google.com/spreadsheets/d/${button.spreadsheetId}/edit#gid=${button.sheetName ? getSheetIdByName(button.sheetName) : '0'}`;
+                    window.open(url, '_blank');
+                });
+                container.appendChild(card);
+            });
+        }
+
+    } catch (error) {
+        container.innerHTML = `<p style="color:red">Lỗi tải dữ liệu dashboard: ${error.message}</p>`;
+    }
+}
