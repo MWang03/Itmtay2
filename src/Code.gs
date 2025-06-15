@@ -135,6 +135,7 @@ function logoutUser() {
   }
 }
 
+// SỬA LỖI: Thêm .toLowerCase() khi kiểm tra username tồn tại và thêm cột isAdmin=FALSE khi tạo user mới
 function handleRegister(username, password, fullName, phone) {
     try {
         if (!username || !password || !fullName || !phone) {
@@ -146,12 +147,16 @@ function handleRegister(username, password, fullName, phone) {
             throw new Error(`Không tìm thấy sheet người dùng: '${USER_SHEET_NAME}'.`);
         }
         const data = sheet.getDataRange().getValues();
+        const normalizedUsername = String(username).toLowerCase().trim(); // Chuẩn hóa input
+
         for (let i = 1; i < data.length; i++) {
-            if (String(data[i][0]).toLowerCase() === String(username).toLowerCase()) {
+            const storedUsername = String(data[i][0]).toLowerCase().trim(); // Chuẩn hóa dữ liệu từ Sheet
+            if (storedUsername === normalizedUsername) {
                 return { success: false, message: 'Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác.' };
             }
         }
-        sheet.appendRow([String(username), String(password), String(fullName), String(phone), false]); // Thêm cột isAdamin = false mặc định
+        // Thêm cột thứ 5 (isAdmin) với giá trị mặc định là FALSE
+        sheet.appendRow([String(username), String(password), String(fullName), String(phone), false]);
         Logger.log(`Người dùng '${username}' Đã đăng ký thành công.`);
         return { success: true, message: 'Đăng ký tài khoản thành công! Bây giờ bạn có thể đăng nhập.' };
     } catch (e) {
@@ -161,7 +166,7 @@ function handleRegister(username, password, fullName, phone) {
 }
 
 
-// CẬP NHẬT: Thêm sessionId vào kết quả trả về
+// SỬA LỖI: Thêm .toLowerCase().trim() để so sánh username không phân biệt hoa/thường và loại bỏ khoảng trắng
 function handleLogin(username, password) {
     try {
         if (!username || !password) {
@@ -173,27 +178,28 @@ function handleLogin(username, password) {
             throw new Error(`Không tìm thấy sheet người dùng: '${USER_SHEET_NAME}'.`);
         }
         const data = sheet.getDataRange().getValues();
+        const normalizedUsername = String(username).toLowerCase().trim(); // Chuẩn hóa input từ người dùng
+
         for (let i = 1; i < data.length; i++) {
             const row = data[i];
-            const storedUsername = String(row[0]);
+            const storedUsername = String(row[0]).toLowerCase().trim(); // Chuẩn hóa dữ liệu từ Sheet
             const storedPassword = String(row[1]);
             const fullName = String(row[2]);
-            const isAdmin = row[4]; // Giả sử cột thứ 5 (index 4) là cột Admin (TRUE/FALSE)
+            const isAdmin = row[4] === true;
 
-            if (storedUsername.toLowerCase() === String(username).toLowerCase() && storedPassword === String(password)) {
+            if (storedUsername === normalizedUsername && storedPassword === String(password)) {
                 const userProps = PropertiesService.getUserProperties();
-                const sessionId = Utilities.getUuid(); // Tạo một mã session duy nhất
+                const sessionId = Utilities.getUuid();
                 userProps.setProperty('isLoggedIn', 'true');
                 userProps.setProperty('loggedInUser', username);
-                userProps.setProperty('sessionId', sessionId); // Lưu mã session
+                userProps.setProperty('sessionId', sessionId);
                 userProps.setProperty('fullName', fullName);
-                userProps.setProperty('isAdmin', isAdmin === true ? 'true' : 'false');
+                userProps.setProperty('isAdmin', isAdmin ? 'true' : 'false');
                 Logger.log(`Người dùng '${username}' (Admin: ${isAdmin}) đã đăng nhập thành công.`);
-                // Trả về sessionId cho frontend
                 return { success: true, message: 'Đăng nhập thành công!', sessionId: sessionId };
             }
         }
-        Logger.log(`Đăng nhập thất bại: Sai tên đăng nhập hoặc mật khẩu cho '${username}'.`);
+        Logger.log(`Đăng nhập thất bại cho '${username}'.`);
         return { success: false, message: 'Sai tên đăng nhập hoặc mật khẩu.' };
     } catch (e) {
         Logger.log('Lỗi nghiêm trọng trong handleLogin: %s', e.message);
