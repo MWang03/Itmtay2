@@ -1,0 +1,17 @@
+<div class="container-timkiem">
+    <h2><i class="fas fa-store-alt"></i> Tìm kiếm Thông tin Siêu Thị</h2>
+    <label for="maSTInput">Nhập Mã Siêu Thị (ví dụ: 12345)</label>
+    <div class="input-wrapper">
+        <input type="text" id="maSTInput" placeholder="Nhập mã siêu thị..." autocomplete="off">
+        <div id="suggestions-box" class="suggestions-container"></div>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button id="searchButton" style="flex-grow: 1;"><i class="fas fa-search"></i><span id="buttonText">Tìm Kiếm</span></button>
+        <button id="clearButton" type="button"><i class="fas fa-eraser"></i><span>Xóa</span></button>
+    </div>
+    <div class="message-area">
+        <div id="loadingMessage" class="loading-message"><div class="spinner"></div></div>
+        <div id="errorMessage" class="error-message"></div>
+    </div>
+    <div id="resultOutput" class="result-box"></div>
+</div>
