@@ -1,19 +1,103 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-    <base href="/">
+    <base target="_top">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập | Đăng ký</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="login-body">
     <div class="main-container">
+        <div class="info-panel">
+            <svg class="waves" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+                <defs><path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" /></defs>
+                <g class="parallax">
+                    <use xlink:href="#gentle-wave" x="48" y="0" fill="rgba(255,255,255,0.7)" />
+                    <use xlink:href="#gentle-wave" x="48" y="3" fill="rgba(255,255,255,0.5)" />
+                    <use xlink:href="#gentle-wave" x="48" y="5" fill="rgba(255,255,255,0.3)" />
+                    <use xlink:href="#gentle-wave" x="48" y="7" fill="#fff" />
+                </g>
+            </svg>
+            <div class="info-panel-logo">
+                <img src="https://cdn.haitrieu.com/wp-content/uploads/2021/11/Logo-The-Gioi-Di-Dong-MWG.png" alt="Logo">
+            </div>
+            <h2>Chào mừng bạn!</h2>
+            <p>Đăng nhập để tiếp tục truy cập vào hệ thống và quản lý công việc của bạn một cách hiệu quả nhất.</p>
         </div>
+        <div class="form-panel">
+            <div class="form-wrapper">
+                <div class="logo">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div class="tab-buttons">
+                    <button class="tab-button active" id="login-tab-button">Đăng nhập</button>
+                    <button class="tab-button" id="signup-tab-button">Đăng ký</button>
+                </div>
+                <div id="loginTab" class="tab-content active">
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <input type="text" id="loginUsername" name="username" required placeholder="Tên đăng nhập">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" id="loginPassword" name="password" required placeholder="Mật khẩu">
+                            <i class="fa-solid fa-lock"></i>
+                        </div>
+                        <div class="button-group">
+                           <button type="submit" class="btn">Đăng nhập</button>
+                          <button type="button" class="btn btn-clear">Xóa</button>
+                        </div>
+                    </form>
+                </div>
+                <div id="signupTab" class="tab-content">
+                    <form id="signupForm">
+                        <div class="form-group">
+                            <input type="text" id="signupUsername" placeholder="Tên đăng nhập" name="username" required>
+                            <i class="fa-solid fa-user-plus"></i>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" id="signupPassword" placeholder="Mật khẩu" name="password" required>
+                            <i class="fa-solid fa-lock"></i>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" id="signupConfirmPassword" placeholder="Xác nhận mật khẩu" required>
+                            <i class="fa-solid fa-key"></i>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="signupFullName" placeholder="Tên đầy đủ của bạn" name="fullName" required>
+                            <i class="fa-solid fa-id-card"></i>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" id="signupPhone" placeholder="Số điện thoại" name="phone" required>
+                            <i class="fa-solid fa-phone"></i>
+                        </div>
+                        <div class="button-group">
+                            <button type="submit" class="btn">Đăng ký</button>
+                            <button type="button" class="btn btn-clear">Xóa</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <div id="popupOverlay" class="popup-overlay">
+        <div id="popupContainer" class="popup-container">
+            <div id="popupIcon" class="popup-icon"></div>
+            <h3 id="popupTitle" class="popup-title"></h3>
+            <p id="popupMessage" class="popup-message"></p>
+            <button id="popupCloseBtn" class="popup-close-btn">Đóng</button>
         </div>
+    </div>
+    <div id="errorAlert">
+        <i class="fas fa-exclamation-circle"></i>
+        <span id="errorAlertMessage"></span>
+    </div>
     <div id="loadingIndicator"><div class="spinner"></div></div>
+
     <script src="login-script.js"></script>
 </body>
 </html>
