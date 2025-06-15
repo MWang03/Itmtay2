@@ -230,3 +230,169 @@ function init_tim_kiem_hang_bk() {
         }
     }
 }
+function init_tk_bhx_toi_uu() {
+    // Nguồn: Chuyển đổi từ thẻ <script> của file tk-bhx-toi-uu.html
+    
+    // Bước 1: Lấy các phần tử DOM cần thiết
+    const searchBtn = document.getElementById('searchBtn');
+    const resultsContainer = document.getElementById('results-container-bhx');
+    const spinner = document.getElementById('loadingSpinner-bhx');
+    const userInputElement = document.getElementById('maUserInput');
+    const storeInputElement = document.getElementById('maSieuThiInput');
+
+    // Bước 2: Gắn sự kiện cho nút tìm kiếm
+    searchBtn.addEventListener('click', searchData);
+
+    // Bước 3: Hàm hỗ trợ (giữ nguyên từ script gốc)
+    function escapeHtml(unsafe) {
+        if (unsafe === null || typeof unsafe === 'undefined') {
+            return '';
+        }
+        return unsafe.toString()
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+    }
+
+    // Bước 4: Viết lại hàm tìm kiếm chính sử dụng async/await và getAPI
+    async function searchData() {
+        const maUserValue = userInputElement ? userInputElement.value : '';
+        const maSieuThiValue = storeInputElement ? storeInputElement.value : '';
+        
+        resultsContainer.innerHTML = '';
+        spinner.style.display = 'block';
+
+        if (!maUserValue || maUserValue.trim() === '') {
+            spinner.style.display = 'none';
+            resultsContainer.innerHTML = '<p class="message-bhx error-message-bhx">Vui lòng nhập Mã USER để tìm kiếm.</p>';
+            return;
+        }
+
+        // === PHẦN THAY THẾ QUAN TRỌNG ===
+        try {
+            // Gọi API với action 'searchBHX' và truyền tham số
+            const results = await getAPI('searchBHX', { 
+                maUser: maUserValue, 
+                maSieuThi: maSieuThiValue 
+            });
+            
+            spinner.style.display = 'none';
+
+            if (results && results.length > 0) {
+                let tableHtml = '<table class="results-table-bhx"><thead><tr>' +
+                    '<th>Mã ST</th><th>Tên ST</th><th>Mã User</th><th>Model</th>' +
+                    '<th>SL Tồn</th><th>SL Thiếu</th><th>SL Dư</th><th>Ghi Chú</th>' +
+                    '</tr></thead><tbody>';
+
+                results.forEach(function(row) {
+                    tableHtml += '<tr>' +
+                        `<td>${escapeHtml(row.maSieuThi)}</td>` +
+                        `<td>${escapeHtml(row.tenSieuThi)}</td>` +
+                        `<td>${escapeHtml(row.maUser)}</td>` +
+                        `<td>${escapeHtml(row.model)}</td>` +
+                        `<td>${escapeHtml(row.slTon)}</td>` +
+                        `<td>${escapeHtml(row.slThieu)}</td>` +
+                        `<td>${escapeHtml(row.slDu)}</td>` +
+                        `<td>${escapeHtml(row.ghiChu)}</td>` +
+                        '</tr>';
+                });
+
+                tableHtml += '</tbody></table>';
+                resultsContainer.innerHTML = tableHtml;
+            } else {
+                resultsContainer.innerHTML = '<p class="message-bhx no-results-message-bhx">Không tìm thấy dữ liệu nào phù hợp.</p>';
+            }
+
+        } catch (error) {
+            spinner.style.display = 'none';
+            resultsContainer.innerHTML = `<p class="message-bhx error-message-bhx">Đã xảy ra lỗi: ${error.message}</p>`;
+        }
+    }
+}
+async function init_tim_kiem_sheet() {
+    // Nguồn: Chuyển đổi và nâng cấp từ thẻ <script> của file tim-kiem-sheet.html
+
+    // Bước 1: Lấy các phần tử DOM
+    const dropdown = document.getElementById('sheetDropdown');
+    const resultContainer = document.getElementById('resultContainer');
+
+    if (!dropdown || !resultContainer) {
+        console.error("Lỗi: Không tìm thấy phần tử dropdown hoặc result container.");
+        return;
+    }
+
+    // Bước 2: Viết hàm để tải và hiển thị dữ liệu sheet
+    async function loadSheetData() {
+        const selectedSheet = dropdown.value;
+        if (!selectedSheet) {
+            resultContainer.innerHTML = '<p class="loading-message">Vui lòng chọn một sheet để xem dữ liệu.</p>';
+            return;
+        }
+
+        resultContainer.innerHTML = '<div class="spinner"></div>'; // Hiển thị spinner
+
+        // === PHẦN THAY THẾ QUAN TRỌNG ===
+        try {
+            // Gọi API để lấy dữ liệu thô (mảng 2 chiều)
+            const data = await getAPI('getDataFromSheet', { sheetName: selectedSheet });
+
+            if (!data || data.length === 0) {
+                resultContainer.innerHTML = '<p>Không có dữ liệu trong sheet này.</p>';
+                return;
+            }
+
+            // Xây dựng bảng HTML từ dữ liệu thô ở phía frontend
+            let tableHtml = '<table border="1" style="border-collapse: collapse; width: 100%; font-size: 14px;">';
+            // Dòng tiêu đề
+            tableHtml += '<thead style="background-color:#f1f1f1; font-weight:bold;"><tr>';
+            data[0].forEach(headerCell => {
+                tableHtml += `<th>${headerCell || ''}</th>`;
+            });
+            tableHtml += '</tr></thead>';
+
+            // Các dòng dữ liệu
+            tableHtml += '<tbody>';
+            for (let i = 1; i < data.length; i++) {
+                tableHtml += '<tr>';
+                data[i].forEach(cell => {
+                    tableHtml += `<td>${cell === null ? '' : cell}</td>`;
+                });
+                tableHtml += '</tr>';
+            }
+            tableHtml += '</tbody></table>';
+
+            resultContainer.innerHTML = tableHtml;
+
+        } catch (error) {
+            resultContainer.innerHTML = `<p style="color: red;">Lỗi khi tải dữ liệu: ${error.message}</p>`;
+        }
+    }
+    
+    // Bước 3: Gắn sự kiện change cho dropdown
+    dropdown.addEventListener('change', loadSheetData);
+    
+    // Bước 4: Tải danh sách sheet cho lần đầu tiên
+    try {
+        // Gọi API để lấy danh sách tên các sheet
+        const sheetNames = await getAPI('getAllSheetNames');
+
+        dropdown.innerHTML = '<option value="">-- Chọn một sheet --</option>'; // Xóa "Đang tải..."
+        if (sheetNames && sheetNames.length > 0) {
+            sheetNames.forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                dropdown.appendChild(option);
+            });
+        } else {
+            dropdown.innerHTML += '<option value="">-- Không có sheet nào --</option>';
+        }
+        resultContainer.innerHTML = '<p class="loading-message">Vui lòng chọn một sheet để xem dữ liệu.</p>';
+        
+    } catch (error) {
+        dropdown.innerHTML = '<option value="">-- Lỗi tải danh sách sheet --</option>';
+        resultContainer.innerHTML = `<p style="color: red;">Lỗi tải danh sách sheet: ${error.message}</p>`;
+    }
+}
