@@ -10,59 +10,83 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="initial-loading-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display:flex; justify-content:center; align-items:center;">
-        <div class="spinner"></div>
+       <div id="main-header">
+        <div id="header-left">
+            <span id="btnGoHomeHeader"><i class="fas fa-home header-icon"></i>Trang Chủ</span>
+        </div>
+        <div id="current-page-title"> </div>
+        <div id="header-right">
+            <div id="user-controls" class="header-item">
+                <span class="greeting-text">Xin chào</span>
+                <button id="logoutButton" class="header-logout-btn">Đăng xuất</button>
+            </div>
+            <div id="live-clock" class="header-item">
+                <span id="clock-time"></span>
+                <span id="clock-date"></span>
+            </div>
+        </div>
     </div>
-    
-    <div id="app-container" style="display:none;">
-        <div id="main-header">
-            <div id="header-left">
-                <span id="btnGoHomeHeader"><i class="fas fa-home header-icon"></i>Trang Chủ</span>
-            </div>
-            <div id="current-page-title"></div>
-            <div id="header-right">
-                <div id="user-controls" class="header-item">
-                    <span id="userNameDisplay"></span>
-                    <button id="logoutButton" class="header-logout-btn">Đăng xuất</button>
-                </div>
-                <div id="live-clock" class="header-item">
-                    <span id="clock-time"></span>
-                    <span id="clock-date"></span>
-                </div>
-            </div>
+
+    <div id="main-content-area">
+        <div id="left-sidebar-container" class="collapsed">
+            <div class="sidebar-content-wrapper"></div>
+        </div>
+        
+        <div id="content-container">
+            <div id="loadingSpinner"></div>
+            <div id="functionContent"></div>
         </div>
 
-        <div id="main-content-area">
-            <div id="left-sidebar-container" class="collapsed">
-                <div class="sidebar-content-wrapper"></div>
-            </div>
-            <main id="functionContent">
-                <div id="loadingSpinner"></div>
-            </main>
-            <div id="right-sidebar-container" class="collapsed">
-                <div class="sidebar-content-wrapper"></div>
-            </div>
+        <div id="right-sidebar-container" class="collapsed">
+            <div class="sidebar-content-wrapper"></div>
         </div>
+    </div>
 
-        <div id="customConfirmModal" class="modal-overlay">
-            <div class="modal-content">
-                <p id="modalMessage">Bạn có chắc chắn muốn đăng xuất?</p>
-                <div class="modal-buttons">
-                    <button id="confirmBtnYes">OK</button>
-                    <button id="confirmBtnNo">Cancel</button>
-                </div>
+    <button id="supportContactButton" class="floating-button">
+        <i class="fas fa-headset icon"></i>
+    </button>
+    <div id="supportContactPopup" class="popup-container">
+        <div class="popup-header">
+            <h3>Hỗ Trợ</h3>
+            <button class="close-popup-button" id="closeSupportPopup">×</button>
+        </div>
+        <div class="popup-content">
+            <p>Nếu bạn cần hỗ trợ, vui lòng liên hệ:</p>
+            <p><i class="fas fa-phone-alt"></i> Điện thoại: 0933 960 788</p>
+            <p><i class="fas fa-envelope"></i> Email: minhquang030@gmail.com</p>
+            <p><i class="fab fa-facebook-messenger"></i> Messenger: <a href="https://www.facebook.com/minh.quang093" target="_blank">Inbox tại đây</a></p>
+        </div>
+    </div>
+
+    <div id="homeConfirmModal" class="modal-overlay">
+        <div class="modal-content">
+            <p>Bạn có muốn quay về trang chủ không?</p>
+            <div class="modal-buttons">
+                <button id="confirmHomeYes">Có</button>
+                <button id="confirmHomeNo">Không</button>
             </div>
         </div>
-        <div id="adminLoginModal" class="modal-overlay">
-             <div class="modal-content">
-                <h3 style="margin-top: 0; color: var(--primary-color);">Bạn không có quyền truy cập.</h3>
-                <p id="adminLoginError" style="color: var(--danger-color); margin-bottom: 10px; height: 1em;"></p>
-                <input type="text" id="adminUsername" placeholder="Tên đăng nhập" autocomplete="off" style="width: 90%; padding: 10px; margin-bottom: 10px; border: 1px solid var(--border-color); border-radius: var(--border-radius-md);">
-                <input type="password" id="adminPassword" placeholder="Mật khẩu" style="width: 90%; padding: 10px; margin-bottom: 20px; border: 1px solid var(--border-color); border-radius: var(--border-radius-md);">
-                <div class="modal-buttons">
-                    <button id="adminLoginSubmit">Đăng nhập</button>
-                    <button id="adminLoginCancel">Hủy</button>
-                </div>
+    </div>
+    <div id="customConfirmModal" class="modal-overlay">
+        <div class="modal-content">
+            <p id="modalMessage">Bạn có chắc chắn muốn đăng xuất?</p>
+            <div class="modal-buttons">
+                <button id="confirmBtnYes">OK</button>
+                <button id="confirmBtnNo">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="adminLoginModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="margin-top: 0; color: red;">Đăng nhập để vào menu quản trị</h3>
+            <h4 style="margin-top: 0; color: red;">Liên hệ: Admin</h4>
+            <p id="adminLoginError" style="color: var(--danger-color); margin-bottom: 10px; height: 1em;"></p>
+            <input type="text" id="adminUsername" placeholder="Tên đăng nhập" autocomplete="off" style="width: 90%; padding: 10px; margin-bottom: 10px; border: 1px solid black; border-radius: var(--border-radius-md);">
+            <input type="password" id="adminPassword" placeholder="Mật khẩu" style="width: 90%; padding: 10px; margin-bottom: 20px; border: 1px solid black; border-radius: var(--border-radius-md);">
+            <div class="modal-buttons">
+                <button id="adminLoginSubmit">Đăng nhập</button>
+                <button id="adminLoginCancel">Hủy</button>
             </div>
         </div>
     </div>
