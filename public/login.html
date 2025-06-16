@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="login-body">
+<body>
     <div class="main-container">
         <div class="info-panel">
             <svg class="waves" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
@@ -33,11 +33,11 @@
                     <i class="fa-solid fa-shield-halved"></i>
                 </div>
                 <div class="tab-buttons">
-                    <button class="tab-button active" id="login-tab-button">Đăng nhập</button>
-                    <button class="tab-button" id="signup-tab-button">Đăng ký</button>
+                    <button class="tab-button active" id="login-tab-button" onclick="showTab('login')">Đăng nhập</button>
+                    <button class="tab-button" id="signup-tab-button" onclick="showTab('signup')">Đăng ký</button>
                 </div>
                 <div id="loginTab" class="tab-content active">
-                    <form id="loginForm">
+                    <form id="loginForm" onsubmit="handleLogin(event)">
                         <div class="form-group">
                             <input type="text" id="loginUsername" name="username" required placeholder="Tên đăng nhập">
                             <i class="fa-solid fa-user"></i>
@@ -48,12 +48,12 @@
                         </div>
                         <div class="button-group">
                            <button type="submit" class="btn">Đăng nhập</button>
-                          <button type="button" class="btn btn-clear">Xóa</button>
+                          <button type="button" class="btn btn-clear" onclick="clearForm('loginForm')">Xóa</button>
                         </div>
                     </form>
                 </div>
                 <div id="signupTab" class="tab-content">
-                    <form id="signupForm">
+                    <form id="signupForm" onsubmit="handleSignup(event)">
                         <div class="form-group">
                             <input type="text" id="signupUsername" placeholder="Tên đăng nhập" name="username" required>
                             <i class="fa-solid fa-user-plus"></i>
@@ -75,9 +75,9 @@
                             <i class="fa-solid fa-phone"></i>
                         </div>
                         <div class="button-group">
-                            <button type="submit" class="btn">Đăng ký</button>
-                            <button type="button" class="btn btn-clear">Xóa</button>
-                        </div>
+    <button type="submit" class="btn">Đăng ký</button>
+    <button type="button" class="btn btn-clear" onclick="clearForm('signupForm')">Xóa</button>
+</div>
                     </form>
                 </div>
             </div>
@@ -96,6 +96,24 @@
         <i class="fas fa-exclamation-circle"></i>
         <span id="errorAlertMessage"></span>
     </div>
+    <div class="support-widget" id="supportWidget">
+        <div class="support-info-box" id="supportInfoBox">
+            <div class="support-header">
+                <h4>Liên Hệ Hỗ Trợ:</h4>
+                <button class="close-support-btn" id="closeSupportBox">&times;</button>
+            </div>
+            <div class="support-body">
+                <p>112080 - Trần Minh Quang</p>
+                <a href="mailto:minhquang030@gmail.com">minhquang030@gmail.com</a>
+                <p style="margin-top: 10px;">Hotline:</p>
+                <strong>0933960788</strong>
+            </div>
+        </div>
+        <button class="support-bubble" id="supportBubble">
+            <i class="fas fa-headset"></i>
+        </button>
+    </div>
+
     <div id="loadingIndicator"><div class="spinner"></div></div>
 
     <script src="login-script.js"></script>
